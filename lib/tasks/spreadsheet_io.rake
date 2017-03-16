@@ -1,5 +1,5 @@
-require 'lib/googledirve/spreadsheet_creator'
-require 'lib/googledirve/spreadsheet'
+require 'lib/google_drive/spreadsheet_creator'
+require 'lib/google_drive/spreadsheet'
 
 namespace :spreadsheet_io do
   desc 'convert google spreadsheet'
