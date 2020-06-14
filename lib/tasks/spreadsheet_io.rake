@@ -3,7 +3,7 @@ require 'lib/google_drive/spreadsheet'
 
 namespace :spreadsheet_io do
   desc 'convert google spreadsheet'
-  task :convert do |task, args|
+  task :convert, ['export_sheet_id', 'import_sheet_id'] do |_task, args|
     begin
       export_sheet_id = args[:export_sheet_id]
       import_sheet_id = args[:import_sheet_id]

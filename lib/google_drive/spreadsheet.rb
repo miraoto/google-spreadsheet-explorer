@@ -5,6 +5,7 @@ module GoogleDrive
       timeout(90) do
         worksheets.each do |_, records|
           next if records.blank?
+
           spreadsheet.update_cells(1, 1, [records[0].keys])
           records.each do |record|
             spreadsheet.list.push(record)
@@ -25,7 +26,7 @@ module GoogleDrive
         cols = 1..spreadsheet.num_cols
         rows.each do |num_row|
           record = cols.map { |num_col| [spreadsheet[1, num_col], format_column(spreadsheet[num_row, num_col])] }.to_h
-          record = merge_record(record, voice_id)
+          record = merge_record(record)
           records[record_num] = record
           record_num += 1
         end
