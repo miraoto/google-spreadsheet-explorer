@@ -2,18 +2,27 @@ require 'lib/google_drive/spreadsheet_creator'
 require 'lib/google_drive/spreadsheet'
 
 namespace :spreadsheet_io do
-  desc 'convert google spreadsheet'
-  task :convert, ['export_sheet_id', 'import_sheet_id'] do |_task, args|
+  desc 'Export from google spreadsheet'
+  task :export, ['sheet_id', 'sheet_name'] do |_task, args|
     begin
-      export_sheet_id = args[:export_sheet_id]
-      import_sheet_id = args[:import_sheet_id]
-      spreadsheets = GoogleDrive::SpreadsheetCreator.create_spreadsheet(export_sheet_id)
-      worksheets = GoogleDrive::Spreadsheet.do_export(spreadsheets)
+      sheet_id = args[:sheet_id]
+      sheet_name = args[:sheet_name]
+      spreadsheet = GoogleDrive::SpreadsheetCreator.create_spreadsheet(sheet_id, sheet_name)
+      spreadsheet_records = GoogleDrive::Spreadsheet.do_export(spreadsheet)
+      pp spreadsheet_records
+    rescue StandardError => e
+      raise e
+    end
+  end
 
-      # convert process
-
-      spreadsheets = GoogleDrive::SpreadsheetCreator.create_spreadsheet(import_sheet_id)
-      Googledrive::Spreadsheet.do_import(spreadsheets, worksheets)
+  desc 'Import from google spreadsheet'
+  task :import, ['sheet_id', 'sheet_name'] do |_task, args|
+    begin
+      sheet_id = args[:sheet_id]
+      sheet_name = args[:sheet_name]
+      import_records = []
+      spreadsheets = GoogleDrive::SpreadsheetCreator.create_spreadsheet(sheet_id, sheet_name)
+      GoogleDrive::Spreadsheet.do_import(spreadsheets, import_records)
     rescue StandardError => e
       raise e
     end
