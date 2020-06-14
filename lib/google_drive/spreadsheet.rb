@@ -1,47 +1,30 @@
 module GoogleDrive
   class Spreadsheet
-    def self.do_import(spreadsheets, worksheets)
-      spreadsheet = spreadsheets[1]
-      timeout(90) do
-        worksheets.each do |_, records|
-          next if records.blank?
-          spreadsheet.update_cells(1, 1, [records[0].keys])
-          records.each do |record|
-            spreadsheet.list.push(record)
+    def self.do_import(spreadsheet, records)
+      Timeout.timeout(ENV['IMPORT_TIMEOUT'] || 90) do
+        records.each.with_index(1) do |record, i|
+          record.each.with_index(1) do |(_k, v), j|
+            spreadsheet[i, j] = v
           end
         end
         spreadsheet.save
       end
     end
 
-    def self.do_export(spreadsheets)
-      worksheets = {}
+    def self.do_export(spreadsheet)
       records = []
-      record_num = 0
-      spreadsheets.each do |spreadsheet|
-        records = []
-        record_num = 0
-        rows = 2..spreadsheet.num_rows # exclude first record for header information
-        cols = 1..spreadsheet.num_cols
-        rows.each do |num_row|
-          record = cols.map { |num_col| [spreadsheet[1, num_col], format_column(spreadsheet[num_row, num_col])] }.to_h
-          record = merge_record(record, voice_id)
-          records[record_num] = record
-          record_num += 1
-        end
-        worksheets[spreadsheet.title] = records
+      record_line = 0
+      rows = 2..spreadsheet.num_rows # exclude first record for header information
+      cols = 1..spreadsheet.num_cols
+      rows.each do |num_row|
+        records[record_line] = cols.map { |num_col| [spreadsheet[1, num_col], format_column(spreadsheet[num_row, num_col])] }.to_h
+        record_line += 1
       end
-      worksheets
+      records
     end
 
     def self.format_column(column)
       NKF.nkf('-m0Z1 -w', column).gsub(/(\r\n|\r|\n)/, ' ').gsub(/\s+/, "\n")
-    end
-
-    def self.merge_record(record)
-      {
-        merge_sample: 'hogehoge'
-      }.merge(record)
     end
   end
 end
